@@ -1,0 +1,161 @@
+/* Instructions block */
+.instructions {
+  background: #f8f9fa;
+  border-left: 4px solid #007bff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+.instructions ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.instructions li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Locked section overlay (optional visual hint) */
+.input-section.locked {
+  opacity: 0.5;
+  pointer-events: none; /* prevents interaction */
+}
+
+/* Container centralizado */
+.container {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  color: #333;
+}
+
+/* Títulos e labels de seção */
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+}
+.section-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Espaçamento entre seções */
+.input-section {
+  margin-bottom: 2rem;
+}
+
+/* Radio-group alinhado */
+.radio-group {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Campos de input (grupo) */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Textareas estilizadas */
+.styled-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: vertical;
+  transition: border-color .2s, box-shadow .2s;
+}
+.styled-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,.2);
+}
+
+/* File input customizado */
+.styled-file {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .2s;
+}
+.styled-file:hover {
+  border-color: #007bff;
+}
+
+/* Status de upload */
+.upload-status {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Botões principais */
+.btn {
+  align-self: flex-start;
+  padding: 0.6rem 1.2rem;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color .2s, transform .1s;
+}
+.btn:disabled {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+}
+.btn:not(:disabled):hover {
+  background-color: #0069d9;
+  transform: translateY(-1px);
+}
+
+/* 🗨️ Entrevistador */
+.assistant {
+  background-color: #f0f0f0;
+  color: #333;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  max-width: 75%;
+  text-align: left;
+  border-left: 4px solid #007bff;
+}
+
+/* 👤 Usuário */
+.user {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  max-width: 75%;
+  text-align: left;
+  margin-left: auto;
+  border-right: 4px solid #17a2b8;
+}
+
+/* Loader */
+.spinner {
+  font-style: italic;
+  color: #666;
+  margin: 1rem 0;
+}
+
+.end-message {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #e0ffe0;
+  border: 1px solid #28a745;
+  border-radius: 5px;
+  color: #155724;
+  font-weight: bold;
+}

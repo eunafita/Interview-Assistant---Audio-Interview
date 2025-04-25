@@ -1,0 +1,138 @@
+<div class="container">
+  <h2>🧠 AI Interview Simulator</h2>
+
+  <!-- Step‐by‐step instructions -->
+  <div class="instructions">
+    <ol>
+      <li>Please insert a PDF file of your resume or paste your resume text below.</li>
+      <li>Once done, add the job description and click “Use job description.”</li>
+      <li>Click “Start Interview” and wait for the assistant to begin.</li>
+      <li>Follow the interview flow. When you wish to finish, click “Finish Interview.”</li>
+    </ol>
+  </div>
+
+  <!-- 1) Resume input -->
+  <div class="input-section">
+    <label class="section-label">📄 Resume Input:</label>
+    <div class="radio-group">
+      <label>
+        <input type="radio" [(ngModel)]="resumeInputType" value="text" />
+        Paste text
+      </label>
+      <label>
+        <input type="radio" [(ngModel)]="resumeInputType" value="file" />
+        Upload PDF
+      </label>
+    </div>
+
+    <!-- text area unlocked immediately -->
+    <div *ngIf="resumeInputType === 'text'" class="field-group">
+      <textarea
+        class="styled-textarea"
+        [(ngModel)]="resume"
+        rows="5"
+        placeholder="Paste your resume here..."
+      ></textarea>
+      <button
+        class="btn"
+        (click)="resumeReady = true"
+        [disabled]="resume.trim().length === 0"
+      >
+        ✅ Use resume above
+      </button>
+    </div>
+
+    <!-- file input -->
+    <div *ngIf="resumeInputType === 'file'" class="field-group">
+      <input
+        class="styled-file"
+        type="file"
+        (change)="onFileSelected($event)"
+        accept="application/pdf"
+      />
+      <p class="upload-status">{{ uploadStatus }}</p>
+      <!-- assume onFileSelected() sets resumeReady -->
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- 2) Job description (locked until resumeReady) -->
+  <div class="input-section" [class.locked]="!resumeReady">
+    <label class="section-label">💼 Job Description:</label>
+    <div class="field-group">
+      <textarea
+        class="styled-textarea"
+        [(ngModel)]="jobDescription"
+        rows="5"
+        placeholder="Paste the job description here..."
+        [disabled]="!resumeReady"
+      ></textarea>
+      <button
+        class="btn"
+        (click)="confirmJobDescription()"
+        [disabled]="!resumeReady || jobDescription.trim().length === 0"
+      >
+        ✅ Use job description
+      </button>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- 3) Start Interview (only when both are ready) -->
+  <div *ngIf="resumeReady && jobReady" class="start-section">
+    <button class="btn" (click)="startInterview()" [disabled]="loading">
+      {{ loading ? '⏳ Generating question...' : '🎤 Start Interview' }}
+    </button>
+  </div>
+
+  <!-- Mostra a rodada -->
+  <div *ngIf="roundCount > 0">
+    <strong>🌀 Round {{ roundCount }}</strong>
+  </div>
+
+  <!-- Chat de mensagens -->
+  <div *ngFor="let entry of history">
+    <div [ngClass]="entry.role">
+      <strong *ngIf="entry.role === 'user'">👤 You:</strong>
+      <strong *ngIf="entry.role === 'assistant'">🗨️ Interviewer:</strong>
+      <p>{{ entry.content }}</p>
+    </div>
+  </div>
+
+  <!-- Spinner aguardando -->
+  <div *ngIf="loading" class="spinner">
+    ⏳ Waiting for interviewer response...
+  </div>
+
+  <!-- Botões de controle -->
+  <div *ngIf="!recording && canRecord">
+    <button class="btn" (click)="startRecording()">🎤 Record Answer</button>
+  </div>
+
+  <div *ngIf="recording">
+    <button class="btn" (click)="stopRecording()">⏹️ Stop Recording</button>
+    <p>⏳ Recording... speak now!</p>
+  </div>
+
+  <!-- Mensagem para incentivar nova resposta -->
+  <div *ngIf="!recording && !canRecord && !loading && history.length > 0">
+    <p>🔁 Click “Record Answer” to continue.</p>
+  </div>
+
+  <div *ngIf="!canRecord && !recording && question">
+    <p>🎧 Waiting for interviewer to finish speaking...</p>
+  </div>
+
+  <!-- Finalizar e exportar -->
+  <div *ngIf="history.length > 0 && !recording && !loading">
+    <button class="btn" (click)="exportTranscript()">📄 End Interview & Export</button>
+  </div>
+
+  <!-- Aviso de finalização -->
+  <div *ngIf="interviewEnded" class="end-message">
+    ✅ Interview finished! The transcript file has been downloaded.
+  </div>
+
+</div>
