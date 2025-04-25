@@ -22,4 +22,5 @@ This Colab notebook helps you practice English job interviews using your resume 
 4. Click 🛑 to end and download your interview transcript
 
 ### 📎 Try it now on Google Colab
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SEU_USUARIO/SEU_REPO/blob/main/interview_assistant.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eunafita/Interview-Assistant---Audio-Interview/blob/main/interview_assistant_audio.ipynb)
+
