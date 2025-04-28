@@ -12,8 +12,6 @@ services:
       - "3000:3000"
     env_file:
       - ./backend/.env
-    volumes:
-      - ./backend:/app
     restart: unless-stopped
 
   frontend:
@@ -21,8 +19,6 @@ services:
     build: ./frontend
     ports:
       - "4200:80"
-    volumes:
-      - ./frontend:/app
     restart: unless-stopped
 
 # Notes:
