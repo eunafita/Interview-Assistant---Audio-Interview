@@ -3,26 +3,34 @@
 # ---------------------------------------------
 
 # Stage 1: Build Angular app
-FROM node:18 as build
+FROM node:18 as builder
 
 WORKDIR /app
 
-# Install dependencies
+# Copy package.json and package-lock.json separately to leverage cache
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy app files and build
+# Copy the rest of the app source code
 COPY . .
-RUN npm run build --prod
 
-# Stage 2: Serve with NGINX
+# Build Angular production files
+RUN npm run build --configuration production
+
+# Stage 2: Serve with nginx
 FROM nginx:alpine
 
-# Copy built Angular app to nginx directory
-COPY --from=build /app/dist/frontend /usr/share/nginx/html
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose HTTP port
+# Copy built Angular files from builder stage
+COPY --from=builder /app/dist/frontend /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 80
 
-# Start nginx server
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
+
