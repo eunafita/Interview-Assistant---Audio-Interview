@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import * as pdfParse from 'pdf-parse';
 import * as fs from 'fs';
@@ -10,20 +9,19 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 
 @Injectable()
 export class InterviewService {
-    private chatHistory: ChatCompletionMessageParam[] = [];
-    private openai: OpenAI;
-    // 🔥 Função para limitar o histórico a no máximo 20 mensagens (exclui a system message)
-    private truncateHistory(maxMessages = 20): void {
-      if (this.chatHistory.length > maxMessages) {
-        this.chatHistory = this.chatHistory.slice(-maxMessages);
-      }
+  private chatHistory: ChatCompletionMessageParam[] = [];
+  private openai: OpenAI;
+  // 🔥 Função para limitar o histórico a no máximo 20 mensagens (exclui a system message)
+  private truncateHistory(maxMessages = 20): void {
+    if (this.chatHistory.length > maxMessages) {
+      this.chatHistory = this.chatHistory.slice(-maxMessages);
     }
-
+  }
 
   constructor() {
     this.openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      });      
+      apiKey: process.env.OPENAI_API_KEY,
+    });
   }
 
   async generateFirstQuestion(resume: string, jobDescription: string): Promise<string> {
@@ -56,14 +54,12 @@ export class InterviewService {
       ${jobDescription}
 
       Now, please ask the first interview question. Please stand for not only technical discussions.
-    `;   
+    `;
 
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.7
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
     });
 
     return completion.choices[0].message.content ?? '';
@@ -72,21 +68,21 @@ export class InterviewService {
   async transcribeAudio(buffer: Buffer): Promise<string> {
     const tempName = crypto.randomUUID() + '.wav';
     const tempPath = path.join(tmpdir(), tempName);
-  
+
     // Salva arquivo temporariamente
     fs.writeFileSync(tempPath, buffer);
-  
+
     const transcription = await this.openai.audio.transcriptions.create({
       file: fs.createReadStream(tempPath),
       model: 'whisper-1',
-      response_format: 'text'
+      response_format: 'text',
     });
-  
+
     fs.unlinkSync(tempPath);
-  
-    return transcription as string;
-  }  
-  
+
+    return transcription;
+  }
+
   async generateNextQuestion(userResponse: string): Promise<{ question: string; audio: Buffer }> {
     this.chatHistory.push({ role: 'user', content: userResponse });
     this.truncateHistory();
@@ -95,9 +91,9 @@ export class InterviewService {
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are a professional English-speaking job interviewer.' },
-        ...this.chatHistory
+        ...this.chatHistory,
       ],
-      temperature: 0.7
+      temperature: 0.7,
     });
 
     const question = completion.choices[0].message.content ?? '';
@@ -112,54 +108,61 @@ export class InterviewService {
     const response = await this.openai.audio.speech.create({
       model: 'tts-1',
       voice: 'alloy',
-      input: text
+      input: text,
     });
 
     return Buffer.from(await response.arrayBuffer());
   }
 
-  async answerInterview(userAnswer: string): Promise<{ nextQuestion: string; audio: Buffer; transcript: string }> {
+  async answerInterview(
+    userAnswer: string,
+  ): Promise<{ nextQuestion: string; audio: Buffer; transcript: string }> {
     this.chatHistory.push({ role: 'user', content: userAnswer });
     this.truncateHistory();
 
     const systemPrompt: ChatCompletionMessageParam = {
-        role: 'system',
-        content: `You are conducting a job interview in English. After each user answer, always ask a follow-up question. Do not say things like "thank you" or "goodbye". The interview is not over until the user ends it manually.`
-    };      
-      
+      role: 'system',
+      content: `You are conducting a job interview in English. After each user answer, always ask a follow-up question. Do not say things like "thank you" or "goodbye". The interview is not over until the user ends it manually.`,
+    };
+
     const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [systemPrompt, ...this.chatHistory],
-        temperature: 0.7,
-      });          
-  
+      model: 'gpt-4',
+      messages: [systemPrompt, ...this.chatHistory],
+      temperature: 0.7,
+    });
+
     const nextQuestion = response.choices[0].message.content ?? '';
-  
+
     this.chatHistory.push({
       role: 'assistant',
-      content: nextQuestion
+      content: nextQuestion,
     });
     this.truncateHistory();
-  
+
     const audio = await this.speakText(nextQuestion);
-  
+
     return {
       nextQuestion,
       audio,
-      transcript: userAnswer
+      transcript: userAnswer,
     };
-  }  
+  }
 
   async extractTextFromPdf(buffer: Buffer): Promise<string> {
     const data = await pdfParse(buffer);
     return data.text;
   }
- 
+
   endInterview() {
     const markdownTranscript = this.chatHistory
       .map((entry) => {
-        const label = entry.role === 'user' ? '👤 You' : entry.role === 'assistant' ? '🗨️ Interviewer' : '📘 System';
-        return `**${label}:** ${entry.content}`;
+        const label =
+          entry.role === 'user'
+            ? '👤 You'
+            : entry.role === 'assistant'
+              ? '🗨️ Interviewer'
+              : '📘 System';
+        return `**${label}:** ${typeof entry.content === 'string' ? entry.content : JSON.stringify(entry.content)}`;
       })
       .join('\n\n');
 

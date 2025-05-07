@@ -27,7 +27,7 @@ export class InterviewComponent {
 
   constructor(
     private interviewService: InterviewService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   recording = false;
@@ -41,71 +41,77 @@ export class InterviewComponent {
     this.recordedChunks = [];
     this.canRecord = false;
 
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      this.mediaRecorder = new MediaRecorder(stream);
-      this.mediaRecorder.start();
-      console.log('🔴 Gravação iniciada');
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        this.mediaRecorder = new MediaRecorder(stream);
+        this.mediaRecorder.start();
+        console.log('🔴 Gravação iniciada');
 
-      this.mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          this.recordedChunks.push(e.data);
-          console.log(`📦 Chunk gravado: ${e.data.size} bytes`);
-        }
-      };
-
-      this.mediaRecorder.onstop = () => {
-        console.log('⏹️ Gravação parada, preparando envio para backend...');
-        stream.getTracks().forEach(track => track.stop());
-
-        const audioBlob = new Blob(this.recordedChunks, { type: 'audio/wav' });
-        const formData = new FormData();
-        formData.append('file', audioBlob, 'response.wav');
-
-        this.loading = true;
-
-        this.interviewService.sendAnswer(formData).subscribe({
-          next: (res) => {
-            console.log('✅ Resposta da OpenAI recebida:', res);
-
-            this.roundCount++;
-            this.history.push({ role: 'user', content: res.transcript });
-            this.history.push({ role: 'assistant', content: res.question });
-            this.cdr.detectChanges();
-
-            this.question = res.question;
-            this.loading = false;
-
-            const audioBlob = this.base64ToBlob(res.audio, 'audio/mpeg');
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-
-            audio.onended = () => {
-              console.log('🔁 Áudio finalizado — liberando botão "Record Answer"');
-              this.canRecord = true;
-              this.cdr.detectChanges();
-            };
-
-            audio.onerror = () => {
-              console.warn('⚠️ Falha ao tocar áudio — liberando gravação mesmo assim.');
-              this.canRecord = true;
-            };
-
-            audio.play().then(() => {
-              console.log('🔊 Áudio da pergunta tocando...');
-            }).catch(err => {
-              console.error('💥 Erro ao tocar áudio:', err);
-              this.canRecord = true;
-            });
-          },
-          error: (err) => {
-            console.error('❌ Erro ao enviar áudio para a API:', err);
-            this.loading = false;
+        this.mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            this.recordedChunks.push(e.data);
+            console.log(`📦 Chunk gravado: ${e.data.size} bytes`);
           }
-        });
-      };
-    }).catch(err => {
-      console.error('🎙️ Erro ao acessar microfone:', err);
-    });
+        };
+
+        this.mediaRecorder.onstop = () => {
+          console.log('⏹️ Gravação parada, preparando envio para backend...');
+          stream.getTracks().forEach((track) => track.stop());
+
+          const audioBlob = new Blob(this.recordedChunks, { type: 'audio/wav' });
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'response.wav');
+
+          this.loading = true;
+
+          this.interviewService.sendAnswer(formData).subscribe({
+            next: (res) => {
+              console.log('✅ Resposta da OpenAI recebida:', res);
+
+              this.roundCount++;
+              this.history.push({ role: 'user', content: res.transcript });
+              this.history.push({ role: 'assistant', content: res.question });
+              this.cdr.detectChanges();
+
+              this.question = res.question;
+              this.loading = false;
+
+              const audioBlob = this.base64ToBlob(res.audio, 'audio/mpeg');
+              const audioUrl = URL.createObjectURL(audioBlob);
+              const audio = new Audio(audioUrl);
+
+              audio.onended = () => {
+                console.log('🔁 Áudio finalizado — liberando botão "Record Answer"');
+                this.canRecord = true;
+                this.cdr.detectChanges();
+              };
+
+              audio.onerror = () => {
+                console.warn('⚠️ Falha ao tocar áudio — liberando gravação mesmo assim.');
+                this.canRecord = true;
+              };
+
+              audio
+                .play()
+                .then(() => {
+                  console.log('🔊 Áudio da pergunta tocando...');
+                })
+                .catch((err) => {
+                  console.error('💥 Erro ao tocar áudio:', err);
+                  this.canRecord = true;
+                });
+            },
+            error: (err) => {
+              console.error('❌ Erro ao enviar áudio para a API:', err);
+              this.loading = false;
+            },
+          });
+        };
+      })
+      .catch((err) => {
+        console.error('🎙️ Erro ao acessar microfone:', err);
+      });
   }
 
   stopRecording() {
@@ -138,7 +144,7 @@ export class InterviewComponent {
       error: (err) => {
         console.error('Error:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -173,7 +179,7 @@ export class InterviewComponent {
           console.error('Upload error:', err);
           this.uploadStatus = '❌ Failed to extract resume.';
           this.loading = false;
-        }
+        },
       });
     } else {
       alert('Please upload a valid PDF.');
@@ -191,7 +197,7 @@ export class InterviewComponent {
   exportTranscript() {
     let markdown = '# 🧠 Interview Transcript\n\n';
 
-    this.history.forEach(entry => {
+    this.history.forEach((entry) => {
       const label = entry.role === 'user' ? '**👤 You:**' : '**🗨️ Interviewer:**';
       markdown += `${label} ${entry.content}\n\n`;
     });
@@ -206,11 +212,12 @@ export class InterviewComponent {
 
     // ✅ Pop-up de confirmação com reload
     setTimeout(() => {
-      const restart = confirm("✅ Interview finished!\n\nYour transcript has been downloaded.\n\nDo you want to restart the interview?");
+      const restart = confirm(
+        '✅ Interview finished!\n\nYour transcript has been downloaded.\n\nDo you want to restart the interview?',
+      );
       if (restart) {
         window.location.reload();
       }
     }, 300); // pequeno delay para garantir que o download ocorra antes do reload
   }
 }
-

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InterviewService {
   private API_URL = 'http://localhost:3000/interview';
@@ -12,7 +12,7 @@ export class InterviewService {
   start(resume: string, jobDescription: string) {
     return this.http.post<{ question: string; audio: string }>(`${this.API_URL}/start`, {
       resume,
-      jobDescription
+      jobDescription,
     });
   }
 
@@ -23,7 +23,7 @@ export class InterviewService {
   sendAnswer(formData: FormData) {
     return this.http.post<{ question: string; audio: string; transcript: string }>(
       `${this.API_URL}/answer`,
-      formData
+      formData,
     );
   }
 }

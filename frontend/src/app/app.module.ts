@@ -7,16 +7,9 @@ import { AppComponent } from './app.component';
 import { InterviewComponent } from './interview/interview.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    InterviewComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpClientModule
-  ],
+  declarations: [AppComponent, InterviewComponent],
+  imports: [BrowserModule, FormsModule, HttpClientModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

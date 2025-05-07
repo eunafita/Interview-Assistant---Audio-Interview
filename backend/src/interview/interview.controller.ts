@@ -7,11 +7,11 @@ export class InterviewController {
   constructor(private readonly interviewService: InterviewService) {}
 
   @Post('start')
-  async startInterview(@Body() body: any) {
+  async startInterview(@Body() body: { resume: string; jobDescription: string }) {
     const { resume, jobDescription } = body;
     const question = await this.interviewService.generateFirstQuestion(resume, jobDescription);
     const audioBuffer = await this.interviewService.speakText(question);
-  
+
     const audioBase64 = audioBuffer.toString('base64');
     return {
       question,
@@ -24,13 +24,13 @@ export class InterviewController {
   async answer(@UploadedFile() file: Express.Multer.File) {
     const transcript = await this.interviewService.transcribeAudio(file.buffer);
     const result = await this.interviewService.answerInterview(transcript);
-  
+
     return {
       transcript,
       question: result.nextQuestion,
       audio: result.audio.toString('base64'),
     };
-  }  
+  }
 
   @Post('end')
   endInterview() {

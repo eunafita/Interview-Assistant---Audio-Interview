@@ -6,7 +6,7 @@ import { InterviewComponent } from './interview/interview.component';
   selector: 'app-root',
   imports: [InterviewComponent],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
   title = 'frontend';
